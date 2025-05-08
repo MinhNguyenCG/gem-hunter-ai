@@ -1,0 +1,7 @@
+PySAT:
+T, T, T, 3, T
+T, 5, G, T, 3
+3, T, G, T, G
+G, T, T, T, 3
+G, T, 5, T, G
+

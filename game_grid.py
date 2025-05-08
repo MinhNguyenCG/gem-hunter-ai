@@ -54,4 +54,31 @@ class GameGrid:
                     neighbors.append((new_row, new_col))
         return neighbors
     
+    def count_neighbor_traps(self, row: int, col: int) -> int:
+        """Count the number of traps around a position."""
+        trap_count = 0
+        for n_row, n_col in self.get_neighbors(row, col):
+            if self.data[n_row][n_col] == 'T':
+                trap_count += 1
+        return trap_count
+    
+    def is_position_correct(self, row: int, col: int) -> bool:
+        """Check if a number position has the correct number of traps around it."""
+        if not self.is_valid_position(row, col):
+            return False
+        
+        value = self.data[row][col]
+        if not isinstance(value, int):
+            return True
+            
+        return self.count_neighbor_traps(row, col) == value
+
+    def is_solved(self) -> bool:
+        """Check if the current grid configuration is a valid solution."""
+        for row in range(self.rows):
+            for col in range(self.cols):
+                if isinstance(self.data[row][col], int) and not self.is_position_correct(row, col):
+                    return False
+        return True
+    
     

@@ -31,3 +31,28 @@ class FileManager:
             logger.error(f"Error reading file {filename}: {e}")
             return None
     
+    @staticmethod
+    def save_solution(solution: List[List], filename: str, method_name: str, overwrite: bool = False) -> None:
+        """
+        Save a solution to a file.
+        
+        Args:
+            solution: The solution grid to save
+            filename: Path to the output file
+            method_name: Name of the solving method
+            overwrite: Whether to overwrite the file if it exists
+        """
+        try:
+            with open(filename, 'w' if overwrite else 'a') as file:
+                file.write(f"{method_name}:\n")
+                if not solution:
+                    file.write("No solution\n\n")
+                    return
+                
+                for row in solution:
+                    file.write(', '.join(str(cell) for cell in row))
+                    file.write('\n')
+                file.write('\n')
+            logger.info(f"Solution saved to {filename}")
+        except Exception as e:
+            logger.error(f"Error writing solution to {filename}: {e}")

@@ -67,4 +67,5 @@ class BaseSolver:
             if status == "satisfiable":
                 FileManager.save_solution(solution, filename, method_name, overwrite)
         else:
-            logger.info(f"{method_name}: No solution found")
+            FileManager.save_solution(None, filename, method_name, overwrite)
+            logger.info(f"{method_name}: Limit reached")

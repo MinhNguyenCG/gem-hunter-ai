@@ -46,7 +46,7 @@ class FileManager:
             with open(filename, 'w' if overwrite else 'a') as file:
                 file.write(f"{method_name}:\n")
                 if not solution:
-                    file.write("No solution\n\n")
+                    file.write("Limit reached\n\n")
                     return
                 
                 for row in solution:

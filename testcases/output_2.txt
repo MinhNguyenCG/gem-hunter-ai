@@ -1,6 +1,0 @@
-PySAT:
-Limit reached
-
-BruteForce:
-Limit reached
-

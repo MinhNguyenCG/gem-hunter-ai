@@ -1,21 +1,20 @@
-import logging
 from typing import Dict, List, Optional, Tuple
 from itertools import combinations
 from pysat.formula import CNF
 from game_grid import GameGrid
-from venv import logger
+
 class CNFGenerator:
     def __init__(self):
         """Initialize the encoder with empty mappings."""
         self.variable_map: Dict[Tuple[int, int], int] = {}
-        self.reverse_map: Dict[int, Tuple[int, int]] = {}
+        self.position_map: Dict[int, Tuple[int, int]] = {}
         self.next_var_id = 1
         self.cnf_formula = CNF()
 
     def reset(self):
         """Reset the CNFGenerator for a new problem."""
         self.variable_map.clear()
-        self.reverse_map.clear()
+        self.position_map.clear()
         self.next_var_id = 1
         self.cnf_formula = CNF()
 
@@ -31,7 +30,7 @@ class CNFGenerator:
         """
         if position not in self.variable_map:
             self.variable_map[position] = self.next_var_id
-            self.reverse_map[self.next_var_id] = position
+            self.position_map[self.next_var_id] = position
             self.next_var_id += 1
         return self.variable_map[position]
     
@@ -45,9 +44,9 @@ class CNFGenerator:
         Returns:
             Position corresponding to the variable ID or None
         """
-        return self.reverse_map.get(abs(var_id))
+        return self.position_map.get(abs(var_id))
     
-    def generate_constraints(self, grid: GameGrid) -> CNF:
+    def generate_cnf(self, grid: GameGrid) -> CNF:
         """
         Generate CNF constraints from the grid.
         
@@ -72,9 +71,8 @@ class CNFGenerator:
                     self.add_number_constraints(grid, row, col)
         
         # Remove duplicate clauses for efficiency
-        self._remove_duplicate_clauses()
+        self.remove_duplicate_clauses()
     
-        logger.debug(f"Generated CNF with {len(self.cnf_formula.clauses)} clauses")
         return self.cnf_formula
     
     def add_number_constraints(self, grid: GameGrid, row: int, col: int) -> None:
@@ -133,7 +131,7 @@ class CNFGenerator:
             for combo in combinations(variables, len(variables) - n + 1):
                 self.cnf_formula.append(list(combo))
         
-    def _remove_duplicate_clauses(self) -> None:
+    def remove_duplicate_clauses(self) -> None:
         """Remove duplicate clauses from the CNF formula for efficiency."""
         unique_clauses = []
         seen_clauses = set()
@@ -144,4 +142,10 @@ class CNFGenerator:
 
             if sorted_clause not in seen_clauses:
                 seen_clauses.add(sorted_clause)      
-                unique_clauses.append(clause)       
+                unique_clauses.append(clause)      
+
+        # Update the CNF formula with unique clauses
+        self.cnf_formula.clauses = unique_clauses
+
+
+             

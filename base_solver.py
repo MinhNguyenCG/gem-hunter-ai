@@ -5,8 +5,6 @@ from game_grid import GameGrid
 from cnf_generate import CNFGenerator
 from file_manager import FileManager
 from venv import logger
-"""Base class for all solvers."""
-
 
 class BaseSolver:
     def __init__(self, grid: GameGrid, encoder: CNFGenerator):
@@ -32,13 +30,16 @@ class BaseSolver:
             pos = self.encoder.get_position(var)
             if pos:
                 # Positive variables are traps, negative are gems
-                solution_grid[pos[0]][pos[1]] = 'T' if var > 0 else 'G'
-        
-        # Fill in any remaining empty cells as gems by default
-        for row in range(self.grid.rows):
-            for col in range(self.grid.cols):
-                if solution_grid[row][col] == '_':
-                    solution_grid[row][col] = 'G'
+                if var > 0:
+                  solution_grid[pos[0]][pos[1]] = 'T'
+                else:
+                  solution_grid[pos[0]][pos[1]] = 'G'
+
+        # # Fill in any remaining empty cells as gems by default
+        # for row in range(self.grid.rows):
+        #     for col in range(self.grid.cols):
+        #         if solution_grid[row][col] == '_':
+        #             solution_grid[row][col] = 'G'
         
         return solution_grid
 
@@ -60,7 +61,11 @@ class BaseSolver:
         # Verify solution first
         if solution:
             verification_grid = GameGrid(solution)
-            status = "satisfiable" if verification_grid.is_solved() else "not satisfiable"
+            if verification_grid.is_solved():
+                status = "satisfiable"
+            else:
+                status = "not satisfiable"
+
             logger.info(f"{method_name}: {status}")
             
             # Only save if solution is valid

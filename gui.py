@@ -5,7 +5,7 @@ from game_grid import GameGrid
 from bruteforce_solver import BruteForceSolver
 from cnf_generate import CNFGenerator
 from pysat_solver import PySATSolver
-
+from backtracking_solver import BacktrackingSolver  
 # Initialize Pygame
 pygame.init()
 
@@ -82,7 +82,7 @@ class GameGUI:
         button_height = 40
         spacing = 20
         
-        matrix_sizes = ["5x5", "7x7", "9x9", "11x11", "15x15", "20x20"]
+        matrix_sizes = ["Input 1: 5x5", "Input 2: 7x7", "Input 3: 9x9", "Input 4: 11x11", "Input 5: 15x15", "Input 6: 20x20"]
         self.testcase_buttons = [
             Button(20 + i * (button_width + spacing), 20,
                   button_width, button_height, 
@@ -131,16 +131,17 @@ class GameGUI:
                 return
             
             encoder = CNFGenerator()
-            encoder.generate_constraints(self.grid)
+            encoder.generate_cnf(self.grid)
             
             # Run solvers
             bf = BruteForceSolver(self.grid, encoder)
             pysat = PySATSolver(self.grid, encoder)
+            backtracking = BacktrackingSolver(self.grid, encoder)
 
             # Save solutions to file
             pysat.save_solution(output_file, "PySAT", False)
             bf.save_solution(output_file, "BruteForce", False)
-            # Note: Implement backtracking solver
+            backtracking.save_solution(output_file, "Backtracking", False)
             
 
             # Update status message
@@ -404,7 +405,3 @@ class GameGUI:
 
         pygame.quit()
         sys.exit()
-
-if __name__ == "__main__":
-    gui = GameGUI()
-    gui.run()

@@ -6,7 +6,7 @@ from base_solver import BaseSolver
 class BruteForceSolver(BaseSolver):
     """Solver using brute force approach."""
     
-    def __init__(self, grid: GameGrid, encoder: CNFGenerator, max_attempts: int = 1000000):
+    def __init__(self, grid: GameGrid, encoder: CNFGenerator, max_attempts: int = 3000000):
         """
         Initialize the brute force solver.
         
@@ -31,14 +31,17 @@ class BruteForceSolver(BaseSolver):
         if num_vars == 0:
             return []
             
+        # Use binary representations for systematic enumeration
+        total_combinations = 1 << num_vars
+        
         # Reset attempt counter
         self.remaining_attempts = self.max_attempts
         
-        # Use binary representations for systematic enumeration
-        total_combinations = 1 << num_vars
-        max_to_try = min(total_combinations, self.max_attempts)
-        
-        for bits in range(max_to_try):
+        for bits in range(total_combinations):
+            # Check if we've exhausted our attempts
+            if self.remaining_attempts <= 0:
+                return None
+                
             self.remaining_attempts -= 1
             
             # Create assignment from bits

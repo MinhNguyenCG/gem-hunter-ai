@@ -5,18 +5,15 @@ from base_solver import BaseSolver
 
 class BacktrackingSolver(BaseSolver):
     
-    def __init__(self, grid: GameGrid, encoder: CNFGenerator, max_attempts: int = 1000000):
+    def __init__(self, grid: GameGrid, encoder: CNFGenerator):
         """
         Initialize the backtracking solver.
         
         Args:
             grid: The game grid to solve
             encoder: The CNF generator with formula
-            max_attempts: Maximum number of attempts before giving up
         """
         super().__init__(grid, encoder)
-        self.max_attempts = max_attempts
-        self.remaining_attempts = max_attempts
         self.method_name = "Backtracking"
         self.num_vars = self.encoder.next_var_id - 1
 
@@ -29,9 +26,6 @@ class BacktrackingSolver(BaseSolver):
         """
         if self.num_vars == 0:
             return []
-        
-        # Reset attempt counter
-        self.remaining_attempts = self.max_attempts
         
         # Initialize partial assignment with None values (unassigned)
         assignment = [None] * self.num_vars
@@ -61,12 +55,6 @@ class BacktrackingSolver(BaseSolver):
         Returns:
             True if a valid solution is found, False otherwise
         """
-        # Check if we've exhausted our attempts
-        if self.remaining_attempts <= 0:
-            return False
-        
-        self.remaining_attempts -= 1
-        
         # Base case: all variables assigned
         if var_idx > self.num_vars:
             return True

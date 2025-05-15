@@ -4,7 +4,6 @@ from typing import Any, List, Optional
 from game_grid import GameGrid
 from cnf_generate import CNFGenerator
 from file_manager import FileManager
-from venv import logger
 
 class BaseSolver:
     def __init__(self, grid: GameGrid, encoder: CNFGenerator):
@@ -35,12 +34,6 @@ class BaseSolver:
                 else:
                   solution_grid[pos[0]][pos[1]] = 'G'
 
-        # # Fill in any remaining empty cells as gems by default
-        # for row in range(self.grid.rows):
-        #     for col in range(self.grid.cols):
-        #         if solution_grid[row][col] == '_':
-        #             solution_grid[row][col] = 'G'
-        
         return solution_grid
 
     def get_solution(self) -> List[List[Any]]:
@@ -65,12 +58,10 @@ class BaseSolver:
                 status = "satisfiable"
             else:
                 status = "not satisfiable"
-
-            logger.info(f"{method_name}: {status}")
             
             # Only save if solution is valid
             if status == "satisfiable":
                 FileManager.save_solution(solution, filename, method_name, overwrite)
         else:
             FileManager.save_solution(None, filename, method_name, overwrite)
-            logger.info(f"{method_name}: Limit reached")
+

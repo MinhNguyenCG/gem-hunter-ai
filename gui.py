@@ -5,7 +5,9 @@ from game_grid import GameGrid
 from bruteforce_solver import BruteForceSolver
 from cnf_generate import CNFGenerator
 from pysat_solver import PySATSolver
-from backtracking_solver import BacktrackingSolver  
+from backtracking_solver import BacktrackingSolver
+from file_manager import FileManager
+
 # Initialize Pygame
 pygame.init()
 
@@ -94,7 +96,9 @@ class GameGUI:
         self.process_button = Button(20, 80, button_width, button_height, "Process", GREEN)
         self.open_output_button = Button(160, 80, button_width, button_height, "Open Output", BLUE)
         self.clear_output_button = Button(300, 80, button_width, button_height, "Clear Output", RED)
-        
+        self.process_all_button = Button(440, 80, button_width, button_height, "Process All", YELLOW)
+        self.clear_all_output_button = Button(580, 80, button_width, button_height, "Clear All Output", YELLOW)
+
         # Algorithm selection buttons
         self.pysat_button = Button(720, 630, button_width, button_height, "PySAT", YELLOW)
         self.backtracking_button = Button(920, 630, button_width, button_height, "Backtracking", YELLOW)
@@ -113,7 +117,7 @@ class GameGUI:
         self.solution_text = ""
 
     def load_testcase(self, testcase_num):
-        input_file = f"./testcases/input_{testcase_num}.txt"
+        input_file = f"testcases/input_{testcase_num}.txt"
         if os.path.exists(input_file):
             self.grid = GameGrid.from_file(input_file)
             self.current_testcase = testcase_num
@@ -122,7 +126,8 @@ class GameGUI:
 
     def process_testcase(self):
         if self.grid and self.current_testcase:
-            output_file = f"./testcases/output_{self.current_testcase}.txt"
+            output_file = f"testcases/output_{self.current_testcase}.txt"
+            performance_file = "testcases/performance.txt"
             
             if os.path.exists(output_file):
                 # Update status message
@@ -130,30 +135,61 @@ class GameGUI:
                 self.status_message_color = RED
                 return
             
-            encoder = CNFGenerator()
-            encoder.generate_cnf(self.grid)
-            
-            # Run solvers
-            bf = BruteForceSolver(self.grid, encoder)
-            pysat = PySATSolver(self.grid, encoder)
-            backtracking = BacktrackingSolver(self.grid, encoder)
-
-            # Save solutions to file
-            pysat.save_solution(output_file, "PySAT", False)
-            bf.save_solution(output_file, "BruteForce", False)
-            backtracking.save_solution(output_file, "Backtracking", False)
-            
-
-            # Update status message
-            self.status_message = "Processing complete!"
-            self.status_message_color = DARK_GREEN
-            self.load_solution()  # Load the new solution
+            try:
+                encoder = CNFGenerator()
+                encoder.generate_cnf(self.grid)
+                
+                # Dictionary to store performance data
+                performance_data = {}
+                
+                # Run solvers and get their execution times
+                pysat = PySATSolver(self.grid, encoder)
+                pysat.get_solution() 
+                performance_data["PySAT"] = pysat.execution_time * 1000  # Convert to ms
+                pysat.save_solution(output_file, "PySAT", False)
+                
+                bt = BacktrackingSolver(self.grid, encoder)
+                bt.get_solution() 
+                if bt.solution is None:
+                    performance_data["Backtracking"] = "N/A"
+                else:
+                    performance_data["Backtracking"] = bt.execution_time * 1000  # Convert to ms
+                bt.save_solution(output_file, "Backtracking", False)
+                
+                bf = BruteForceSolver(self.grid, encoder)
+                bf.get_solution() 
+                if bf.solution is None:
+                    performance_data["BruteForce"] = "N/A"
+                else:
+                    performance_data["BruteForce"] = bf.execution_time * 1000  # Convert to ms
+                bf.save_solution(output_file, "BruteForce", False)
+                
+                # Save performance data (append mode)
+                FileManager.save_performance(performance_file, [performance_data], append=True)
+                
+                # Update status message with execution times
+                time_msg = f"Testcase {self.current_testcase} - PySAT: {pysat.execution_time*1000:.2f}ms, "
+                if bt.solution is None:
+                    time_msg += f"Backtracking: N/A, "
+                else:
+                    time_msg += f"Backtracking: {bt.execution_time*1000:.2f}ms, "
+                if bf.solution is None:
+                    time_msg += f"BruteForce: N/A"
+                else:
+                    time_msg += f"BruteForce: {bf.execution_time*1000:.2f}ms"
+                self.status_message = time_msg
+                self.status_message_color = DARK_GREEN
+                
+                self.load_solution()  # Load the new solution
+            except Exception as e:
+                self.status_message = f"Error processing testcase: {str(e)}"
+                self.status_message_color = RED
 
     def load_solution(self):
         if not self.current_testcase:
             return
 
-        output_file = f"./testcases/output_{self.current_testcase}.txt"
+        output_file = f"testcases/output_{self.current_testcase}.txt"
         if not os.path.exists(output_file):
             self.solution_grid = None
             self.solution_text = ""
@@ -182,17 +218,127 @@ class GameGUI:
 
     def open_output_file(self):
         if self.current_testcase:
-            output_file = f"./testcases/output_{self.current_testcase}.txt"
-            if os.path.exists(output_file):
-                os.startfile(output_file)
+            # Get absolute path of the output file
+            current_dir = os.path.dirname(os.path.abspath(__file__))
+            output_file = os.path.join(current_dir, f"testcases/output_{self.current_testcase}.txt")
+            
+            try:
+                if os.path.exists(output_file):
+                    # Try to open with default system application
+                    if sys.platform == 'win32':
+                        os.startfile(output_file)
+                    else:
+                        import subprocess
+                        subprocess.run(['xdg-open', output_file])
+                else:
+                    self.status_message = f"Output file not found at: {output_file}"
+                    self.status_message_color = RED
+            except Exception as e:
+                self.status_message = f"Error opening file: {str(e)}"
+                self.status_message_color = RED
 
     def clear_output_file(self):
         if self.current_testcase:
-            output_file = f"./testcases/output_{self.current_testcase}.txt"
+            output_file = f"testcases/output_{self.current_testcase}.txt"
             if os.path.exists(output_file):
                 os.remove(output_file)
-                self.status_message = ""
+                self.status_message = f"Output file for test case {self.current_testcase} removed!"
+                self.status_message_color = DARK_GREEN
                 self.load_solution()
+            else:
+                self.status_message = f"No output file exists for test case {self.current_testcase}."
+                self.status_message_color = YELLOW
+
+    
+    
+    def process_all_testcases(self):
+        # Process all test cases sequentially
+        all_performance_data = []
+        
+        for testcase_num in range(1, 7):  # 6 test cases from 1 to 6
+            input_file = f"testcases/input_{testcase_num}.txt"
+            output_file = f"testcases/output_{testcase_num}.txt"
+            
+            # Skip if output already exists
+            if os.path.exists(output_file):
+                continue
+                
+            # Skip if input doesn't exist
+            if not os.path.exists(input_file):
+                continue
+                
+            # Load the test case
+            temp_grid = GameGrid.from_file(input_file)
+            
+            # Generate CNF
+            encoder = CNFGenerator()
+            encoder.generate_cnf(temp_grid)
+            
+            # Dictionary to store performance data for this testcase
+            performance_data = {}
+            
+            # Run solvers and get their execution times
+            pysat = PySATSolver(temp_grid, encoder)
+            pysat.get_solution() 
+            performance_data["PySAT"] = pysat.execution_time * 1000  # Convert to ms
+            pysat.save_solution(output_file, "PySAT", False)
+            
+            backtracking = BacktrackingSolver(temp_grid, encoder)
+            backtracking.get_solution()  
+            if backtracking.solution is None:
+                performance_data["Backtracking"] = "N/A"
+            else:
+                performance_data["Backtracking"] = backtracking.execution_time * 1000  # Convert to ms
+            backtracking.save_solution(output_file, "Backtracking", False)
+            
+            bf = BruteForceSolver(temp_grid, encoder)
+            bf.get_solution()
+            if bf.solution is None:
+                performance_data["BruteForce"] = "N/A"
+            else:
+                performance_data["BruteForce"] = bf.execution_time * 1000  # Convert to ms
+            bf.save_solution(output_file, "BruteForce", False)
+            
+            # Add to overall performance data
+            all_performance_data.append(performance_data)
+        
+        # Save overall performance data (overwrite mode)
+        if all_performance_data:
+            FileManager.save_performance("testcases/performance.txt", all_performance_data, append=False)
+        
+        # Update status message
+        self.status_message = "All test cases processed!"
+        self.status_message_color = DARK_GREEN
+        
+        # Reload current solution if a test case is selected
+        if self.current_testcase:
+            self.load_solution()
+
+    def clear_all_output_files(self):
+        # Clear all output files
+        files_removed = 0
+        for testcase_num in range(1, 7):  # 6 test cases from 1 to 6
+            output_file = f"testcases/output_{testcase_num}.txt"
+            if os.path.exists(output_file):
+                os.remove(output_file)
+                files_removed += 1
+        
+        performance_file = "testcases/performance.txt"
+        if os.path.exists(performance_file):
+            os.remove(performance_file)
+            files_removed += 1
+        # Update status message
+        if files_removed > 0:
+            self.status_message = f"{files_removed} output files removed!"
+            self.status_message_color = DARK_GREEN
+        else:
+            self.status_message = "No output files to remove."
+            self.status_message_color = YELLOW
+        
+        # Reload current solution
+        if self.current_testcase:
+            self.load_solution()
+
 
     def draw_section_borders(self):
         # Draw main section borders
@@ -294,7 +440,7 @@ class GameGUI:
     def draw_status_message(self):
         if self.status_message:
             text_surface = FONT.render(self.status_message, True, self.status_message_color)
-            self.screen.blit(text_surface, (450, 90))
+            self.screen.blit(text_surface, (720, 90))
 
     def draw_solution_text(self):
         if self.solution_text:
@@ -354,6 +500,12 @@ class GameGUI:
 
                 if self.clear_output_button.handle_event(event):
                     self.clear_output_file()
+
+                if self.process_all_button.handle_event(event):
+                    self.process_all_testcases()
+
+                if self.clear_all_output_button.handle_event(event):
+                    self.clear_all_output_files()
                 
                 # Check algorithm button clicks
                 for button in self.algorithm_buttons:
@@ -391,6 +543,8 @@ class GameGUI:
             self.process_button.draw(self.screen)
             self.open_output_button.draw(self.screen)
             self.clear_output_button.draw(self.screen)
+            self.process_all_button.draw(self.screen)
+            self.clear_all_output_button.draw(self.screen)
 
             for button in self.algorithm_buttons:
                 button.draw(self.screen)

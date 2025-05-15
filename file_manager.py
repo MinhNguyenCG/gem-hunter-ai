@@ -1,10 +1,8 @@
 from typing import Dict, List, Any
 import os
-from venv import logger
 
 class FileManager:
-    """Handles all file I/O operations for the gem hunter game."""
-    
+
     @staticmethod
     def load_grid(filename: str) -> List[List[Any]]:
         """
@@ -17,7 +15,6 @@ class FileManager:
             The loaded grid or None if file doesn't exist
         """
         if not os.path.exists(filename):
-            logger.error(f"File {filename} does not exist")
             return None
         
         grid = []
@@ -28,7 +25,6 @@ class FileManager:
                     grid.append([int(cell) if cell.isdigit() else cell for cell in row])
             return grid
         except Exception as e:
-            logger.error(f"Error reading file {filename}: {e}")
             return None
     
     @staticmethod
@@ -53,6 +49,64 @@ class FileManager:
                     file.write(', '.join(str(cell) for cell in row))
                     file.write('\n')
                 file.write('\n')
-            logger.info(f"Solution saved to {filename}")
         except Exception as e:
-            logger.error(f"Error writing solution to {filename}: {e}")
+            pass
+
+    @staticmethod
+    def save_performance(filename: str, performance_data: List[Dict[str, float]], append: bool = False) -> None:
+        """
+        Save performance data to a file.
+        
+        Args:
+            filename: Path to the output file
+            performance_data: List of dictionaries containing performance data
+            append: Whether to append to existing file or overwrite
+        """
+        try:
+            # If appending and file exists, read existing data
+            existing_data = []
+            if append and os.path.exists(filename):
+                with open(filename, 'r') as file:
+                    lines = file.readlines()
+                    if len(lines) > 2:  # Skip header and separator
+                        for line in lines[2:]:
+                            parts = line.strip().split('|')
+                            if len(parts) > 1:
+                                test_case = int(parts[0].strip())
+                                times = []
+                                for t in parts[1:]:
+                                    t = t.strip()
+                                    if t == "N/A":
+                                        times.append(t)
+                                    else:
+                                        times.append(float(t))
+                                data = {
+                                    "PySAT": times[0],
+                                    "Backtracking": times[1],
+                                    "BruteForce": times[2]
+                                }
+                                existing_data.append(data)
+
+            # Combine existing and new data
+            all_data = existing_data + performance_data
+
+            # Write all data
+            with open(filename, 'w') as file:
+                # Write header
+                methods = ["PySAT", "Backtracking", "BruteForce"]
+                header = f"{'Test Case':^10} | " + " | ".join(f"{method:^20}" for method in methods)
+                file.write(header + "\n")
+                file.write("-" * len(header) + "\n")
+                
+                # Write data
+                for idx, data in enumerate(all_data):
+                    row = f"{idx:^10} | "
+                    for method in methods:
+                        time = data[method]
+                        if time == "N/A":
+                            row += f"{time:^20} | "
+                        else:
+                            row += f"{time:^20.6f} | "
+                    file.write(row + "\n")
+        except Exception as e:
+            pass

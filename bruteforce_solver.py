@@ -6,7 +6,7 @@ from base_solver import BaseSolver
 class BruteForceSolver(BaseSolver):
     """Solver using brute force approach."""
     
-    def __init__(self, grid: GameGrid, encoder: CNFGenerator, max_attempts: int = 2000000):
+    def __init__(self, grid: GameGrid, encoder: CNFGenerator, max_attempts: int = 3000000):
         """
         Initialize the brute force solver.
         

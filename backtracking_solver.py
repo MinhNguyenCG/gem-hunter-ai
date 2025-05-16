@@ -106,8 +106,7 @@ class BacktrackingSolver(BaseSolver):
                     clause_satisfied = True
                     break
             
-            # If all variables in clause are assigned but clause is not satisfied, 
-            # the assignment is invalid
+            # If all variables in clause are assigned but clause is not satisfied, the assignment is invalid
             if all_assigned and not clause_satisfied:
                 return False
         

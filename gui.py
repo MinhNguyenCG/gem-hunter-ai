@@ -84,7 +84,7 @@ class GameGUI:
         button_height = 40
         spacing = 20
         
-        matrix_sizes = ["Input 1: 5x5", "Input 2: 7x7", "Input 3: 9x9", "Input 4: 11x11", "Input 5: 15x15", "Input 6: 20x20"]
+        matrix_sizes = ["Input 1: 3x3", "Input 2: 5x5", "Input 3: 7x7", "Input 4: 9x9", "Input 5: 11x11", "Input 6: 20x20"]
         self.testcase_buttons = [
             Button(20 + i * (button_width + spacing), 20,
                   button_width, button_height, 
@@ -140,12 +140,20 @@ class GameGUI:
                 encoder.generate_cnf(self.grid)
                 
                 # Dictionary to store performance data
-                performance_data = {}
+                performance_data = {
+                    "test_case": self.current_testcase,
+                    "PySAT": None,
+                    "Backtracking": None,
+                    "BruteForce": None
+                }
                 
                 # Run solvers and get their execution times
                 pysat = PySATSolver(self.grid, encoder)
                 pysat.get_solution() 
-                performance_data["PySAT"] = pysat.execution_time * 1000  # Convert to ms
+                if pysat.solution is None:
+                    performance_data["PySAT"] = "N/A"
+                else:
+                    performance_data["PySAT"] = pysat.execution_time * 1000  # Convert to ms
                 pysat.save_solution(output_file, "PySAT", False)
                 
                 bt = BacktrackingSolver(self.grid, encoder)
@@ -165,7 +173,7 @@ class GameGUI:
                 bf.save_solution(output_file, "BruteForce", False)
                 
                 # Save performance data (append mode)
-                FileManager.save_performance(performance_file, [performance_data], append=True)
+                FileManager.save_performance(performance_file, [performance_data], True)
                 
                 # Update status message with execution times
                 time_msg = f"Testcase {self.current_testcase} - PySAT: {pysat.execution_time*1000:.2f}ms, "
@@ -275,7 +283,12 @@ class GameGUI:
             encoder.generate_cnf(temp_grid)
             
             # Dictionary to store performance data for this testcase
-            performance_data = {}
+            performance_data = {
+                "test_case": testcase_num,  # Add test case number
+                "PySAT": None,
+                "Backtracking": None,
+                "BruteForce": None
+            }
             
             # Run solvers and get their execution times
             pysat = PySATSolver(temp_grid, encoder)
@@ -302,9 +315,9 @@ class GameGUI:
             # Add to overall performance data
             all_performance_data.append(performance_data)
         
-        # Save overall performance data (overwrite mode)
+        # Save overall performance data (append mode)
         if all_performance_data:
-            FileManager.save_performance("testcases/performance.txt", all_performance_data, append=False)
+            FileManager.save_performance("testcases/performance.txt", all_performance_data, append=True)
         
         # Update status message
         self.status_message = "All test cases processed!"
@@ -472,7 +485,7 @@ class GameGUI:
         num_rect = pygame.Rect(legend_x + 2*legend_spacing, legend_y, 20, 20)
         pygame.draw.rect(self.screen, WHITE, num_rect)
         pygame.draw.rect(self.screen, BLACK, num_rect, 1)
-        text = SMALL_FONT.render("Number - Visible gems", True, BLACK)
+        text = SMALL_FONT.render("Number", True, BLACK)
         self.screen.blit(text, (text_x + 2*legend_spacing, legend_y))
 
     def run(self):

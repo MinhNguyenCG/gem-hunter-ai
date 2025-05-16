@@ -70,6 +70,8 @@ class FileManager:
                     lines = file.readlines()
                     if len(lines) > 2:  # Skip header and separator
                         for line in lines[2:]:
+                            if line == "\n":
+                                break
                             parts = line.strip().split('|')
                             if len(parts) > 1:
                                 test_case = int(parts[0].strip())
@@ -78,9 +80,10 @@ class FileManager:
                                     t = t.strip()
                                     if t == "N/A":
                                         times.append(t)
-                                    else:
+                                    elif t:  # Only process non-empty strings
                                         times.append(float(t))
                                 data = {
+                                    "test_case": test_case,
                                     "PySAT": times[0],
                                     "Backtracking": times[1],
                                     "BruteForce": times[2]
@@ -90,23 +93,39 @@ class FileManager:
             # Combine existing and new data
             all_data = existing_data + performance_data
 
+            # Sort data by test case number
+            all_data.sort(key=lambda x: x["test_case"])
+
             # Write all data
             with open(filename, 'w') as file:
                 # Write header
-                methods = ["PySAT", "Backtracking", "BruteForce"]
-                header = f"{'Test Case':^10} | " + " | ".join(f"{method:^20}" for method in methods)
+                methods = ["Test Case", "PySAT", "Backtracking", "BruteForce"]
+                header = " | ".join(f"{method:^15}" for method in methods)
                 file.write(header + "\n")
                 file.write("-" * len(header) + "\n")
                 
                 # Write data
-                for idx, data in enumerate(all_data):
-                    row = f"{idx:^10} | "
-                    for method in methods:
+                for data in all_data:
+                    row = f"{data['test_case']:^15} | "
+                    for method in ["PySAT", "Backtracking", "BruteForce"]:
                         time = data[method]
                         if time == "N/A":
-                            row += f"{time:^20} | "
+                            row += f"{time:^15} | "
                         else:
-                            row += f"{time:^20.6f} | "
+                            row += f"{time:^15.6f} | "
                     file.write(row + "\n")
+
+                # Add summary statistics
+                file.write("\nSummary Statistics:\n")
+                file.write("-" * len(header) + "\n")
+                
+                # Calculate averages for each method
+                for method in ["PySAT", "Backtracking", "BruteForce"]:
+                    valid_times = [d[method] for d in all_data if d[method] != "N/A"]
+                    if valid_times:
+                        avg_time = sum(valid_times) / len(valid_times)
+                        file.write(f"Average {method:^15} | {avg_time:^15.6f} ms\n")
+                    else:
+                        file.write(f"Average {method:^15} | {'N/A':^15}\n")
         except Exception as e:
-            pass
+            print(f"Error saving performance data: {str(e)}")

@@ -18,15 +18,7 @@ class BaseSolver:
         raise NotImplementedError("Each solver must implement the solve method")
 
     def apply_solution(self, model: List[int]) -> List[List[Any]]:
-        """
-        Apply a solution model to create a solved grid.
-        
-        Args:
-            model: Solution model as a list of literals
-            
-        Returns:
-            A 2D grid with the solution applied, or None if no solution
-        """
+        """Apply a solution model to create a solved grid."""
         if not model:
             return None
             

@@ -55,8 +55,10 @@ class BruteForceSolver(BaseSolver):
                 # Convert to model format (list of literals)
                 model = []
                 for var_id in range(1, num_vars + 1):
-                    # Positive literal for True, negative for False
-                    model.append(var_id if assignment[var_id - 1] else -var_id)
+                    if assignment[var_id - 1]:
+                        model.append(var_id)
+                    else:
+                        model.append(-var_id)
                 
                 return model
         
@@ -85,9 +87,7 @@ class BruteForceSolver(BaseSolver):
                 if var_id > len(assignment):
                     continue
                 
-                # Check if this literal satisfies the clause:
-                # - Positive literal (var) is satisfied when the variable is True
-                # - Negative literal (¬var) is satisfied when the variable is False
+                # Check if this literal satisfies the clause
                 if (is_positive and assignment[var_id - 1]) or (not is_positive and not assignment[var_id - 1]):
                     clause_satisfied = True
                     break
@@ -96,5 +96,4 @@ class BruteForceSolver(BaseSolver):
             if not clause_satisfied:
                 return False
                 
-        # All clauses are satisfied
         return True

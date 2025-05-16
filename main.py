@@ -1,19 +1,16 @@
+import os
 from file_manager import FileManager
+from game_grid import GameGrid
+from cnf_generate import CNFGenerator
+from pysat_solver import PySATSolver
+from bruteforce_solver import BruteForceSolver
+from gui import GameGUI
+
 
 def main():
-    print("Hello, World!")
-    # Add your main code logic here
-
-    grid = FileManager.load_grid("testcases/input_3.txt")
-
-    # Print the loaded grid for verification
-    if grid is not None:
-        for row in grid:
-            print(row)
-    else:
-        print("Failed to load grid.")
-
-
+    # Initialize and run the GUI
+    gui = GameGUI()
+    gui.run()
 
 if __name__ == "__main__":
     main()

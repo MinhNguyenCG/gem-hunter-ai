@@ -14,7 +14,6 @@ class BacktrackingSolver(BaseSolver):
             encoder: The CNF generator with formula
         """
         super().__init__(grid, encoder)
-        self.method_name = "Backtracking"
         self.num_vars = self.encoder.next_var_id - 1
 
     def solve(self) -> Optional[List[int]]:

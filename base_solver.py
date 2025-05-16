@@ -18,7 +18,15 @@ class BaseSolver:
         raise NotImplementedError("Each solver must implement the solve method")
 
     def apply_solution(self, model: List[int]) -> List[List[Any]]:
-        """Apply a solution model to create a solved grid."""
+        """
+        Apply a solution model to create a solved grid.
+        
+        Args:
+            model: Solution model as a list of literals
+            
+        Returns:
+            A 2D grid with the solution applied, or None if no solution
+        """
         if not model:
             return None
             
@@ -30,10 +38,10 @@ class BaseSolver:
             if pos:
                 # Positive variables are traps, negative are gems
                 if var > 0:
-                  solution_grid[pos[0]][pos[1]] = 'T'
+                    solution_grid[pos[0]][pos[1]] = 'T'
                 else:
-                  solution_grid[pos[0]][pos[1]] = 'G'
-
+                    solution_grid[pos[0]][pos[1]] = 'G'
+        
         return solution_grid
 
     def get_solution(self) -> List[List[Any]]:

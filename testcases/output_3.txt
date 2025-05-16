@@ -1,21 +1,25 @@
 PySAT:
-T, T, T, 3, T
-T, 5, G, T, 3
-3, T, G, T, G
-G, T, T, T, 3
-G, T, 5, T, G
+1, 1, G, G, G, 2, T, 3, T
+T, 1, G, G, G, 2, T, 3, 1
+1, 1, G, G, G, 1, 1, 1, G
+1, 2, 2, 2, 1, 1, G, G, G
+1, T, T, 3, T, 2, G, G, G
+1, 2, 2, 3, T, 2, G, G, G
+G, 1, 1, 2, 1, 1, G, G, G
+G, 1, T, 1, 1, 1, 1, G, G
+G, 1, 1, 1, 1, T, 1, G, G
 
 Backtracking:
-T, T, T, 3, T
-T, 5, G, T, 3
-3, T, G, T, G
-G, T, T, T, 3
-T, T, 5, T, G
+1, 1, G, T, G, 2, T, 3, T
+T, 1, G, T, G, 2, T, 3, 1
+1, 1, G, G, G, 1, 1, 1, G
+1, 2, 2, 2, 1, 1, G, G, G
+1, T, T, 3, T, 2, G, T, T
+1, 2, 2, 3, T, 2, G, T, T
+G, 1, 1, 2, 1, 1, G, G, T
+G, 1, T, 1, 1, 1, 1, G, T
+G, 1, 1, 1, 1, T, 1, G, T
 
 BruteForce:
-T, T, T, 3, T
-T, 5, G, T, 3
-3, T, G, T, G
-G, T, T, T, 3
-G, T, 5, T, G
+Limit reached
 

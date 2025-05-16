@@ -30,10 +30,10 @@ class BaseSolver:
             if pos:
                 # Positive variables are traps, negative are gems
                 if var > 0:
-                  solution_grid[pos[0]][pos[1]] = 'T'
+                    solution_grid[pos[0]][pos[1]] = 'T'
                 else:
-                  solution_grid[pos[0]][pos[1]] = 'G'
-
+                    solution_grid[pos[0]][pos[1]] = 'G'
+        
         return solution_grid
 
     def get_solution(self) -> List[List[Any]]:

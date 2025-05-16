@@ -14,7 +14,6 @@ class BacktrackingSolver(BaseSolver):
             encoder: The CNF generator with formula
         """
         super().__init__(grid, encoder)
-        self.method_name = "Backtracking"
         self.num_vars = self.encoder.next_var_id - 1
 
     def solve(self) -> Optional[List[int]]:
@@ -50,7 +49,7 @@ class BacktrackingSolver(BaseSolver):
         
         Args:
             assignment: Current partial assignment of variables
-            var_idx: Index of current variable to assign (1-based)
+            var_idx: Index of current variable to assign
             
         Returns:
             True if a valid solution is found, False otherwise
@@ -107,8 +106,7 @@ class BacktrackingSolver(BaseSolver):
                     clause_satisfied = True
                     break
             
-            # If all variables in clause are assigned but clause is not satisfied, 
-            # the assignment is invalid
+            # If all variables in clause are assigned but clause is not satisfied, the assignment is invalid
             if all_assigned and not clause_satisfied:
                 return False
         

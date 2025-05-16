@@ -1,0 +1,21 @@
+PySAT:
+T, 3, 3, T, 3, T, 2
+3, T, T, 5, T, 4, T
+T, 5, T, 5, T, 5, 3
+4, T, 5, T, 5, T, T
+T, T, 4, T, T, 5, T
+T, 4, G, G, 5, T, 3
+2, T, 2, T, T, 3, T
+
+Backtracking:
+T, 3, 3, T, 3, T, 2
+3, T, T, 5, T, 4, T
+T, 5, T, 5, T, 5, 3
+4, T, 5, T, 5, T, T
+T, T, 4, T, T, 5, T
+T, 4, G, G, 5, T, 3
+2, T, 2, T, T, 3, T
+
+BruteForce:
+Limit reached
+

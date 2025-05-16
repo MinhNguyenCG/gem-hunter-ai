@@ -1,0 +1,15 @@
+PySAT:
+T, G, 1
+G, 2, T
+G, G, 1
+
+Backtracking:
+T, G, 1
+G, 2, T
+G, G, 1
+
+BruteForce:
+T, G, 1
+G, 2, T
+G, G, 1
+

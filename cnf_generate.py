@@ -117,7 +117,6 @@ class CNFGenerator:
             n: Number of variables that must be true
         """
         if n > len(variables) or n < 0:
-            # Impossible constraint - add empty clause to make CNF unsatisfiable
             self.cnf_formula.append([])
             return
         
@@ -137,7 +136,6 @@ class CNFGenerator:
         seen_clauses = set()
 
         for clause in self.cnf_formula.clauses:
-            # Sort variables in clauses to normalize, ex: [3, 1, -2] -> [-2, 1, 3]
             sorted_clause = tuple(sorted(clause))
 
             if sorted_clause not in seen_clauses:

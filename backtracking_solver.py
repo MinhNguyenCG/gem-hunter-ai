@@ -49,7 +49,7 @@ class BacktrackingSolver(BaseSolver):
         
         Args:
             assignment: Current partial assignment of variables
-            var_idx: Index of current variable to assign (1-based)
+            var_idx: Index of current variable to assign
             
         Returns:
             True if a valid solution is found, False otherwise
